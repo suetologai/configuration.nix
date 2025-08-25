@@ -53,9 +53,10 @@
   # IMPORTANT: This line enables the Wayland session option in SDDM.
   services.xserver.displayManager.sddm.wayland.enable = true;
 
-  # Enable KDE Plasma as a WINDOW MANAGER, not a full desktop.
-  # This provides the core shell without the bundled apps (Konqueror, KMail, etc.).
-  services.xserver.windowManager.plasma5.enable = true;
+  # Enable KDE Plasma as the Desktop Manager.
+  # The "minimal" setup is achieved by manually specifying essential
+  # applications in `environment.systemPackages` below.
+  services.xserver.desktopManager.plasma5.enable = true;
 
   # Since you have an integrated Intel GPU (Ivy Bridge), the generic "modesetting"
   # driver is the modern and recommended choice. It's built into the Linux kernel.
