@@ -7,34 +7,43 @@
   # --- BOOTLOADER ---
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  
-  hardware.cpu.intel.updateMicrocode = true;
+
+  # Enable Intel microcode updates.
+  hardware.cpu.intel.updateMicrocode = config.boot.loader.systemd-boot.enable;
 
   # --- NETWORKING ---
-  networking.hostName = "nixos-kde";
+  networking.hostName = "nixos-kde"; # Feel free to change this
   networking.networkmanager.enable = true;
 
   # --- TIME, LANGUAGE, and KEYBOARD ---
   time.timeZone = "Europe/Moscow";
   i18n.defaultLocale = "en_US.UTF-8";
-  
+
   console.keyMap = "us";
-  services.keyboard = {
-    layout = "us,ru";
-    options = [ "grp:win_space_toggle" ];
-  };
   
-  # --- GRAPHICS (KDE + Wayland) ---
+  # Set keyboard layouts for the graphical session.
+  services.xserver.layout = "us,ru";
+  services.xserver.xkbOptions = "grp:win_space_toggle"; # Switch layouts with Win+Space
+  
+  # --- GRAPHICS (KDE Plasma 6 + Wayland on Intel iGPU) ---
   services.xserver.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.displayManager.sddm.wayland.enable = true;
-  services.xserver.displayManager.sddm.defaultSession = "plasmawayland";
+  
+  # CHANGED: NixOS 25.05 uses Plasma 6. The `plasma5` option has been replaced.
+  services.desktopManager.plasma6.enable = true;
 
-  services.xserver.desktopManager.plasma5.enable = true;
+  # Enable the SDDM display manager.
+  services.displayManager.sddm.enable = true;
+  # Enable the Wayland session in SDDM by default.
+  services.displayManager.sddm.wayland.enable = true;
 
-  services.xserver.videoDrivers = [ "modesetting" "intel" "nvidia" ];
+  # NOTE: For modern Intel integrated graphics (like in the i7-13620H),
+  # it's best to NOT specify any video drivers. NixOS will automatically
+  # use the correct 'modesetting' kernel driver, which is the recommended default.
+  # The line below is commented out for this reason.
+  # services.xserver.videoDrivers = [ "modesetting" ];
 
-  # --- SOUND ---
+  # --- SOUND (Pipewire) ---
+  # Disable PulseAudio as Pipewire provides a compatible implementation.
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -49,29 +58,36 @@
     isNormalUser = true;
     description = "Sueta";
     extraGroups = [ "wheel" "networkmanager" ];
-    initialHashedPassword = "$6$ВАШ";
+    # IMPORTANT: Replace the placeholder with your actual hashed password.
+    # Generate one with the command: mkpasswd -m sha-512
+    initialHashedPassword = "$6$YOUR_HASHED_PASSWORD_HERE";
   };
   security.sudo.wheelNeedsPassword = true;
 
+  # Allow unfree packages if needed (e.g., for discord).
+  nixpkgs.config.allowUnfree = true;
+
   # --- PACKAGES ---
   environment.systemPackages = with pkgs; [
-    # Базовые
+    # Basic utils
     git
     wget
     firefox
     discord
+
+    # KDE packages are mostly included with plasma6, but explicit is fine.
     kdePackages.konsole
     kdePackages.dolphin
     kdePackages.kate
     kdePackages.spectacle
 
-    # Wi-Fi и сетевой анализ
+    # Wi-Fi and network analysis
     aircrack-ng
     wireshark
     kismet
     nmap
 
-    # Хакинг / пентест
+    # Hacking / pentesting
     metasploit
     hydra
   ];
@@ -81,15 +97,18 @@
   services.printing.enable = true;
 
   # --- WAYLAND PORTALS ---
+  # This is crucial for screen sharing and file dialogs in Wayland.
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; [ xdg-desktop-portal-kde ];
+    # Add GTK portal for better compatibility with GTK apps (like Firefox).
+    extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
+    # Set KDE as the default backend.
+    config.common.default = "*";
   };
 
   # --- POWER MANAGEMENT ---
   services.tlp.enable = true;
-}
-
   
+  # Do not change this line. It's used by the `nixos-rebuild` command.
   system.stateVersion = "25.05";
 }
