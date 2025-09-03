@@ -12,7 +12,7 @@
   hardware.cpu.intel.updateMicrocode = config.boot.loader.systemd-boot.enable;
 
   # --- NETWORKING ---
-  networking.hostName = "nixos-kde"; # Feel free to change this
+  networking.hostName = "nixos-kde";
   networking.networkmanager.enable = true;
 
   # --- TIME, LANGUAGE, and KEYBOARD ---
@@ -21,9 +21,8 @@
 
   console.keyMap = "us";
   
-  # Set keyboard layouts for the graphical session.
   services.xserver.layout = "us,ru";
-  services.xserver.xkbOptions = "grp:win_space_toggle"; # Switch layouts with Win+Space
+  services.xserver.xkbOptions = "grp:win_space_toggle";
   
   # --- GRAPHICS (KDE Plasma 6 + Wayland on Intel iGPU) ---
   services.xserver.enable = true;
@@ -48,34 +47,29 @@
     isNormalUser = true;
     description = "Sueta";
     extraGroups = [ "wheel" "networkmanager" ];
-    initialHashedPassword = "$6$YOUR_HASHED_PASSWORD_HERE";
+    # Sets the initial password to "graf".
+    # You will be prompted to change this password on your first login.
+    initialPassword = "graf";
   };
   security.sudo.wheelNeedsPassword = true;
 
-  # Allow unfree packages if needed (e.g., for discord).
+  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # --- PACKAGES ---
   environment.systemPackages = with pkgs; [
-    # Basic utils
     git
     wget
     firefox
     discord
-
-    # KDE packages
     kdePackages.konsole
     kdePackages.dolphin
     kdePackages.kate
     kdePackages.spectacle
-
-    # Wi-Fi and network analysis
     aircrack-ng
     wireshark
     kismet
     nmap
-
-    # Hacking / pentesting
     metasploit
     hydra
   ];
@@ -92,9 +86,9 @@
   };
 
   # --- POWER MANAGEMENT ---
-  # REMOVED: `services.tlp.enable = true;` has been removed.
-  # KDE Plasma 6 automatically enables and uses `power-profiles-daemon` by default.
-  # Enabling both causes a conflict. The default daemon is recommended for desktop integration.
-  
+  # The line `services.tlp.enable = true;` was removed
+  # because it conflicts with `power-profiles-daemon` which
+  # is enabled by default with KDE Plasma.
+
   system.stateVersion = "25.05";
 }
