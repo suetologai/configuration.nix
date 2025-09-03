@@ -28,22 +28,12 @@
   # --- GRAPHICS (KDE Plasma 6 + Wayland on Intel iGPU) ---
   services.xserver.enable = true;
   
-  # CHANGED: NixOS 25.05 uses Plasma 6. The `plasma5` option has been replaced.
   services.desktopManager.plasma6.enable = true;
 
-  # Enable the SDDM display manager.
   services.displayManager.sddm.enable = true;
-  # Enable the Wayland session in SDDM by default.
   services.displayManager.sddm.wayland.enable = true;
 
-  # NOTE: For modern Intel integrated graphics (like in the i7-13620H),
-  # it's best to NOT specify any video drivers. NixOS will automatically
-  # use the correct 'modesetting' kernel driver, which is the recommended default.
-  # The line below is commented out for this reason.
-  # services.xserver.videoDrivers = [ "modesetting" ];
-
   # --- SOUND (Pipewire) ---
-  # Disable PulseAudio as Pipewire provides a compatible implementation.
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -58,8 +48,6 @@
     isNormalUser = true;
     description = "Sueta";
     extraGroups = [ "wheel" "networkmanager" ];
-    # IMPORTANT: Replace the placeholder with your actual hashed password.
-    # Generate one with the command: mkpasswd -m sha-512
     initialHashedPassword = "$6$YOUR_HASHED_PASSWORD_HERE";
   };
   security.sudo.wheelNeedsPassword = true;
@@ -75,7 +63,7 @@
     firefox
     discord
 
-    # KDE packages are mostly included with plasma6, but explicit is fine.
+    # KDE packages
     kdePackages.konsole
     kdePackages.dolphin
     kdePackages.kate
@@ -97,18 +85,16 @@
   services.printing.enable = true;
 
   # --- WAYLAND PORTALS ---
-  # This is crucial for screen sharing and file dialogs in Wayland.
   xdg.portal = {
     enable = true;
-    # Add GTK portal for better compatibility with GTK apps (like Firefox).
     extraPortals = with pkgs; [ xdg-desktop-portal-gtk ];
-    # Set KDE as the default backend.
     config.common.default = "*";
   };
 
   # --- POWER MANAGEMENT ---
-  services.tlp.enable = true;
+  # REMOVED: `services.tlp.enable = true;` has been removed.
+  # KDE Plasma 6 automatically enables and uses `power-profiles-daemon` by default.
+  # Enabling both causes a conflict. The default daemon is recommended for desktop integration.
   
-  # Do not change this line. It's used by the `nixos-rebuild` command.
   system.stateVersion = "25.05";
 }
