@@ -21,8 +21,8 @@
 
   console.keyMap = "us";
   
-  services.xserver.layout = "us,ru";
-  services.xserver.xkbOptions = "grp:win_space_toggle";
+  services.xserver.xkb.layout = "us,ru";
+  services.xserver.xkb.options = "grp:win_space_toggle";
   
   # --- GRAPHICS (KDE Plasma 6 + Wayland on Intel iGPU) ---
   services.xserver.enable = true;
@@ -33,7 +33,7 @@
   services.displayManager.sddm.wayland.enable = true;
 
   # --- SOUND (Pipewire) ---
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
